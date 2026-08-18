@@ -1,0 +1,31 @@
+services:
+  server:
+    build:
+      context: .
+    ports:
+      - "4040:4040"
+    environment:
+      NODE_ENV: production
+      # É aqui que você também passaria as variáveis para o Node se conectar ao banco:
+      # - DB_HOST=db
+      # - DB_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    environment: # O Postgres precisa saber a senha, veja a observação abaixo sobre secrets
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: db-password.txt
